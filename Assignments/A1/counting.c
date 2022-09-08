@@ -1,116 +1,88 @@
-#include <stdio.h>
+/*
+Here, I implement a brute force solution to compute the number of non-negative
+integers that satisfy the requirement in some given value range. The
+non-negative integer we are interested in contains a specific digit that is
+repeated a specific number of times in the non-negative integer. This program
+will check each integer in the specified range to see if it qualifies.
+*/
+
 #include <math.h>
+#include <stdio.h>
 
-int Counting(int min_r, int max_r, int digit, int rep);
+int Counting(int min_range, int max_range, int digit, int repetition);
 
-int main() 
-{
-    /*
-    min_r: minimum of considered range;
-    max_r: maximum of considered range;
-    digit: digit of interest;
-    rep: number of repetitions;
-    */
-    int min_r, max_r, digit, rep, count;
+int main() {
+  /*
+  min_range: minimum of considered range;
+  max_range: maximum of considered range;
+  digit: specific digit of interest;
+  repetition: number of digit repetitions;
+  count: the number of valus in the given range satisfying the requirement.
+  */
+  int min_range, max_range, digit, repetition, count;
 
+  // read values in order and exam if they are valid
+  printf("Enter the minimum of considered range: ");
+  scanf("%d", &min_range);
 
-    // read valid values in order
-    printf("Enter the minimum of considered range: ");
-    scanf("%d", &min_r);
-    printf("Enter the maximum of considered range: ");
-    scanf("%d", &max_r);
-    if (max_r < min_r)
-    {
-        printf("INPUT ERROR: The maximum of range must be"
-                "larger or equal than the minimum of range");
-    }
+  printf("Enter the maximum of considered range: ");
+  scanf("%d", &max_range);
 
+  printf("Enter the digit of interst: ");
+  scanf("%d", &digit);
 
-    printf("Enter the digit of interst: ");
-    scanf("%d", &digit);
-    if (digit == 0)
-    {
-        printf("INPUT ERROR: The digit must between 1 to 9."
-                "It cannot be 0.");
-    }
+  printf("Enter the number of repetitions: ");
+  scanf("%d", &repetition);
 
+  count = Counting(min_range, max_range, digit, repetition);
+  printf("The number of integers from %d to %d that include "
+         "exactly %d %d's is %d. \n",
+         min_range, max_range, digit, repetition, count);
 
-    printf("Enter the number of repetitions: ");
-    scanf("%d", &rep);
-
-
-    Counting(min_r, max_r, digit, rep);
-
-    return 0;
-
+  return 0;
 }
 
+// define a helper function to return the larger number;
+int max(int a, int b) { return (a > b) ? a : b; }
 
-int Counting(int min_r, int max_r, int digit, int rep)
-{
-    /*
-    Counting the number of nonnegative integers in the range that include
-    exactly n interested numbers.
-    */
+int Counting(int min_range, int max_range, int digit, int repetition) {
+  int temp_max = max_range, TEMP_REP = 0;
+  int count = 0;
+  /*
+  Check the maximum number of repetitions we can have in the
+  range we are interested in. Then check if the input for the
+  number of repetitions is valid.
+  */
 
-    int temp_max = max_r, TEMP_REP = 0;
-    int count = 0;
-    /*
-    Check the maximum number of repetitions we can have in the 
-    range we are interested in. Then check if the input for the 
-    number of repetitions is valid.
-    */
-    while (temp_max > 0) 
-    {
-        TEMP_REP++;
-        temp_max = temp_max / 10;
+  // If the maximum number's digits in the given range is less than the
+  // repetitions, then there will not be a value in the given range that
+  // satisfies the requirement
+  if (max_range < (repetition - 1) * 10) {
+    return count;
+  }
+
+  // Counting the number of values satisfying the requirement
+  for (int num = max(min_range, 0); num <= max_range; num++) {
+    int tmp_num = num;
+    int real_repetition = 0;
+
+    // extract digits one by one using integer arithmetic, and check if each
+    // digit is our interested digits.
+    while (tmp_num > 0) {
+      int real_digit = tmp_num % 10;
+      if (real_digit == digit) {
+        real_repetition++;
+      }
+      // Once the actual repetion exceeds the interested repetition, we can
+      // determine this valus is not what we want.
+      if (real_repetition > repetition) {
+        break;
+      }
+      tmp_num /= 10;
     }
-    if (rep > TEMP_REP)
-    {
-        printf("INPUT ERROR: The maximum number of repetitions is impossible");
+    if (real_repetition == repetition) {
+      count++;
     }
-
-
-
-    if (max_r > 0)
-    {
-        int num = min_r;
-        int j = pow(10, TEMP_REP-1);
-
-        // We don't need to exam the negative integers and positive integers 
-        // with valid digits less than the desired repeated value.
-        while (num <= (rep-1)*10) 
-        {
-            num++;
-        }
-
-        // Examing the possible integer in the range one by one;
-        while (num <= max_r) 
-        {
-            // Using integer arithmetic to extract each digit separately. 
-            // Then, check if the extracted digit equal the desired digit.
-            int d = num;
-            int power = j;
-            while(d > 0)
-            {
-                int extract = d / power;
-                if (extract == digit) {
-                    count++;
-                }
-                if (extract != 0) {
-                    d -= extract * power;
-                }
-                if (power != 1) {
-                    power /= 10;
-                }
-            }
-            num++;
-        }
-
-    }
-
-    printf("The number of integers from %d to %d that include"
-            "exactly %d %d's is %d. \n", min_r, max_r, digit, rep, count);
-
-    return 0;
+  }
+  return count;
 }
