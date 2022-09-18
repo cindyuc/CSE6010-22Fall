@@ -48,11 +48,6 @@ int max(int a, int b) { return (a > b) ? a : b; }
 int Counting(int min_range, int max_range, int digit, int repetition) {
   int temp_max = max_range, TEMP_REP = 0;
   int count = 0;
-  /*
-  Check the maximum number of repetitions we can have in the
-  range we are interested in. Then check if the input for the
-  number of repetitions is valid.
-  */
 
   // If the maximum number's digits in the given range is less than the
   // repetitions, then there will not be a value in the given range that
