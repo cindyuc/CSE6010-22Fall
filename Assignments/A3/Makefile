@@ -1,0 +1,30 @@
+#
+# Makefile for Assignment 2: single-linked-list; CSE 6010
+#
+
+# SHELL = /bin/bash
+CC = clang
+CFLAGS = -O0 -g -Wall -Werror -std=gnu99
+
+# # Path to LLVM binaries
+# LLVM_PATH = /opt/homebrew/bin/
+# ifneq (,$(wildcard /usr/lib/llvm-7/bin/))
+#   LLVM_PATH = /usr/lib/llvm-7/bin/
+# endif
+
+ODIR=obj
+
+DEPS = divisorgraph.h
+OBJ = main.c divisorgraph.c
+
+# Compile object files
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+# Compile main binaries
+divisorgraph: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
+
+
+.PHONY: clean
+clean:
+	rm -rf *.o 
