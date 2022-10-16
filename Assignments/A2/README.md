@@ -10,10 +10,22 @@ Operating System: macOS Monterey Version 12.6
 You can modify the main.c and compile your code using the command:
 
 ```
-linux> make
+base> make
 ```
 
-If there are no errors, the compiler will generate an executable program *singleLinkedList*. Run this program using the command:
+If there is an error, please try following command:
 ```
-linux> ./singleLinkedList
+base> gcc -o singleLinkedList main.c node.c
 ```
+
+After no errors, the compiler will generate an executable program *singleLinkedList*. Run this program using the command:
+```
+base> ./singleLinkedList
+```
+
+You can also try to run text.c using folowing command:
+```
+base> gcc -o test test.c
+base> ./test
+```
+
