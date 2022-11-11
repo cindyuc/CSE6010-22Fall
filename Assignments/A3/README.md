@@ -16,11 +16,11 @@ If there is an error, please try following command:
 base> gcc -o divisorgraph main.c divisorgraph.c
 ```
 
-After no errors, the compiler will generate an executable program *singleLinkedList*. Run this program using the command:
+After no errors, the compiler will generate an executable program *divisorgraph*. Run this program using the command:
 ```
 base> ./divisorgraph NumberOfVertices d/b
 ```
-where `d` represent Dijkstra's algorithm, `b` represents Bellman-Ford algorithm
+where NumberOfVertices is the number of vertices in the divisor graph you desired, `d` represent Dijkstra's algorithm, `b` represents Bellman-Ford algorithm
 
 For example, if you want to generate a graph with 500 vertices, and you want to use Dijkstra's algorithm in searching, you can use folloing command:
 ```
@@ -31,6 +31,6 @@ If you have no idea about generation, you can use default arguments with follow 
 ```
 base> ./divisorgraph
 ```
-The default arguments are `numbervertices = 1000`, `algorithm = Dijkstra's algorithm`
+The default arguments are `numbervertices = 1000`, `algorithm = Dijkstra's algorithm/'d'`
 
 

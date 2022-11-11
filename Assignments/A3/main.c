@@ -1,39 +1,46 @@
 #include "divisorgraph.h"
 #include <stdio.h>
+#include <string.h>
 
-#define MAXVALUE 7
+#define MAXVALUE 1000
 #define UNUSED(x) (void)(x)
 
 int main(int argc, char *argv[]) {
   int numvertices = MAXVALUE;
   char bf = 'd';
-  if (argc == 1) {
-    printf("the number of vertices in graph and algorithms are default.\n");
-  } else if (argc == 2) {
+  char dij[] = "Dijkstra's algorithm";
+  char bell[] = "Bellman-Ford algorithm";
+  char algorithm[40];
+  strcpy(algorithm, dij);
+
+  if (argc == 2) {
     if (*argv[1] == 'd') {
-      bf = 'd';
+      numvertices = MAXVALUE;
     } else if (*argv[1] == 'b') {
       bf = 'b';
+      numvertices = MAXVALUE;
     } else {
-      numvertices = *argv[1];
+      numvertices = atoi(argv[1]);
     }
-  } else {
-    numvertices = *argv[1];
+  } else if (argc == 3) {
+    numvertices = atoi(argv[1]);
     bf = *argv[2];
   }
 
-  printf("%d, %c\n", numvertices, bf);
+  if (bf == 'b') {
+    strcpy(algorithm, bell);
+  }
 
-  Vertex *vertexarray[MAXVALUE] = {NULL};
+  
 
-  // UNUSED(vertexarray);
+  printf("The number of vertices in graph is %d, the search algorithm used is %s\n", numvertices, algorithm);
+
+  Vertex *vertexarray[MAXVALUE+5] = {NULL};
+
   initialize(vertexarray);
-  printf("ini");
   buildGraph(vertexarray, numvertices);
-
-  // findPaths(vertexarray, numvertices, bf);
-
-  //   finalize(vertexarray);
+  findPaths(vertexarray, numvertices, bf);
+  finalize(vertexarray);
 
   return 0;
 }

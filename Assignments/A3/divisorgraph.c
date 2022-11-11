@@ -3,189 +3,186 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #define UNUSED(x) (void)(x)
 
-#define MAXVERTEX 7
+#define MAX_VERTICES_NUM 1000
+#define INF INT_MAX
 
-Vertex *initializeVertex(int value) {
+Vertex *newVertex(int value) {
   Vertex *newVertex = malloc(sizeof(Vertex));
   if (newVertex == NULL) {
     printf("Allocation failure");
   } else {
     newVertex->value = value;
     newVertex->weight = 1;
-    newVertex->max_weightPath = 0;
-    newVertex->predecossor = NULL;
     newVertex->next = NULL;
   }
-
   return newVertex;
 }
 
 void initialize(Vertex **vertexarray) {
-  vertexarray = malloc((MAXVERTEX + 5) * sizeof(Vertex *));
-  if (vertexarray == NULL) {
-    printf("Allocation failure");
-  }
-  for (int i = 0; i < MAXVERTEX+ 5; i++) {
-    Vertex * newVertex = initializeVertex(i + 1);
-    vertexarray[i] = newVertex;
+  for (int i = 0; i < MAX_VERTICES_NUM + 5; i++) {
+    Vertex *new = newVertex(i + 1);
+    vertexarray[i] = new;
   }
 }
 
 void buildGraph(Vertex **vertexarray, int numvertices) {
-  // for (int i = 0; i < numvertices; i++) {
-  //   Vertex *newVertex = initializeVertex(i + 1);
-  //   // printf("size of newVertex, %lu\n", sizeof(*newVertex));
-  //   // UNUSED(newVertex);
-  //   // printf("%lu\n", sizeof(*vertexarray[2]));
-  //   vertexarray[i] = newVertex;
-  // }
-  // // for (int i = numvertices; i < MAXVERTEX; i++) {
-  // //   vertexarray[i] = NULL;
-  // // }
-
   Vertex *tmpVertex = vertexarray[0];
-  // printf("%d\n", vertexarray[0]->value);
 
   // there will an edge from the vertex with value 1 to every other vertices in
   // the graph
   for (int i = 2; i < numvertices + 1; i++) {
-    Vertex *newVertex = initializeVertex(i);
-    tmpVertex->next = newVertex;
-    tmpVertex = newVertex;
+    // printf("n");
+    Vertex *new = newVertex(i);
+    // UNUSED(newVertex);
+    tmpVertex->next = new;
+    tmpVertex = new;
   }
 
-  printf("add edges for vertex 1.\n");
-
-  // adding an edge from vertex i (i != 1)
+  // // adding an edge for vertex i (i != 1)
   for (int i = 1; i < numvertices; i++) {
     tmpVertex = vertexarray[i];
     for (int j = i + 2; j < numvertices + 1; j++) {
       if (j % (i + 1) == 0) {
-        Vertex *newVertex = initializeVertex(j);
-        printf("%d\n", j);
-        tmpVertex->next = newVertex;
-        tmpVertex = newVertex;
+        Vertex *new = newVertex(j);
+        tmpVertex->next = new;
+        tmpVertex = new;
       }
     }
-    // printf("%d\n", i);
   }
-  printf("build graph successfully.\n");
 }
 
-bool relax(Vertex *u, Vertex *v) {
-  if (u->max_weightPath + u->weight > v->max_weightPath) {
-    v->max_weightPath = u->max_weightPath + u->weight;
-    v->predecossor = u;
+bool relax(Vertex *u, Vertex *v, int *distance, int *predecessor, int *set_Q) {
+  if (distance[u->value - 1] + u->weight > distance[v->value - 1]) {
+    distance[v->value - 1] = distance[u->value - 1] + u->weight;
+    set_Q[v->value - 1] = distance[v->value - 1];
+    predecessor[v->value - 1] = u->value;
     return true;
   }
   return false;
-};
+}
+
+void printMaximumPath(int *distance, int *predecessor, int numvertices) {
+  int max_distance = -1;
+  int num_path = 0;
+  int sink[numvertices];
+
+  // get the maximum distance from source vertex
+  for (int i = 0; i < numvertices; i++) {
+    if (distance[i] > max_distance) {
+      max_distance = distance[i];
+      num_path = 1;
+
+      memset(sink, 0, sizeof(sink));
+      sink[0] = i + 1;
+    } else if (distance[i] == max_distance) {
+      // printf("%d\n", i+1);
+      num_path++;
+      sink[num_path - 1] = i + 1;
+    }
+  }
+
+  // get the maximum paths
+  int max_path[num_path][max_distance + 1];
+  for (int i = 0; i < num_path; i++) {
+    int currVertex = sink[i];
+    for (int j = max_distance; j >= 0; j--) {
+      max_path[i][j] = currVertex;
+      currVertex = predecessor[currVertex - 1];
+    }
+  }
+
+  printf("The length of maximum-length path in this divisor graph is %d.\n",
+         max_distance);
+  printf("These paths are:\n");
+  for (int i = 0; i < num_path; i++) {
+    for (int j = 0; j < max_distance + 1; j++) {
+      if (j == max_distance) {
+        printf("%d\n", max_path[i][j]);
+      } else {
+        printf("%d -> ", max_path[i][j]);
+      }
+    }
+  }
+}
 
 void findPaths(Vertex **vertexarray, int numvertices, char bf) {
-  printf("start to find path.\n");
-
-  int max_pathLength = 0;
-  int num_path = 0;
-
-  bool set_S[numvertices];
-  memset(set_S, false, sizeof(set_S));
-  set_S[0] = true;
-
-  bool set_Q[numvertices];
-  memset(set_Q, true, sizeof(set_Q));
-  set_Q[0] = false;
+  int distance[numvertices];
+  int predecessor[numvertices];
+  int set_Q[numvertices];
+  int size_Q = numvertices;
+  memset(distance, 0, sizeof(distance));
+  memset(predecessor, 0, sizeof(predecessor));
+  memset(set_Q, 0, sizeof(set_Q));
+  predecessor[0] = 1;
 
   switch (bf) {
-    // Bellman-Ford algorithm
+  // Bellman-Ford algorithm
   case 'b': {
+    bool flag = true;
+
+    while (flag) {
+      flag = false;
+
+      for (int i = 0; i < numvertices; i++) {
+        Vertex *u = vertexarray[i];
+        Vertex *v = u->next;
+        while (v != NULL) {
+          if (relax(u, v, distance, predecessor, set_Q)) {
+            flag = true;
+          }
+          v = v->next;
+        }
+      }
+    }
+    break;
   }
     // Dijkstra's algorithm
-  default: {
-    printf("dijstra's algorithms.\n");
-    // printf("%d\n", vertexarray[0]->value);
-    Vertex *tmpVertex = vertexarray[0]->next;
-    int u_idx = 0;
-    int traverseCounter = 1;
+  case 'd': {
+    while (size_Q > 0) {
+      int u_idx = 0;
+      int max_distance_q = -1;
 
-    // printf("vertex 1.\n");
-
-    while (tmpVertex != NULL) {
-      if (relax(vertexarray[0], tmpVertex)) {
-        relax(vertexarray[0], vertexarray[tmpVertex->value - 1]);
-        if (tmpVertex->max_weightPath > max_pathLength) {
-          // printf("%d, %d\n", tmpVertex->max_weightPath, max_pathLength);
-          max_pathLength = tmpVertex->max_weightPath;
-          u_idx = tmpVertex->value - 1;
-          num_path = 1;
-        } else if (tmpVertex->max_weightPath == max_pathLength) {
-          num_path++;
+      // find the vertex in Q with maximum value of distance.
+      // If there are multiple vertices with the same maximum distance, then
+      // record the first vertex INF means the vertex doesn't in set_Q
+      for (int i = 0; i < numvertices; i++) {
+        if (set_Q[i] != INF && set_Q[i] > max_distance_q) {
+          max_distance_q = set_Q[i];
+          u_idx = i;
         }
       }
-      tmpVertex = tmpVertex->next;
-    }
-    // printf("%d\n", num_path);
 
-    while (traverseCounter <= numvertices) {
-      set_S[u_idx] = true;
-      set_Q[u_idx] = false;
+      // get vertex u and remove u from set Q
       Vertex *u = vertexarray[u_idx];
-      // printf("u's value %d\n", (set_Q[3] == true));
+      set_Q[u_idx] = INF;
+      size_Q--;
 
-      tmpVertex = u->next;
-      while (tmpVertex != NULL) {
-        printf("while loop.\n");
-        if (set_Q[tmpVertex->value - 1] == true && relax(u, tmpVertex)) {
-          relax(u, vertexarray[tmpVertex->value - 1]);
-          printf("%d\n", tmpVertex->max_weightPath);
-          if (tmpVertex->max_weightPath > max_pathLength) {
-            printf("%d, %d\n", tmpVertex->max_weightPath, max_pathLength);
-            max_pathLength = tmpVertex->max_weightPath;
-            u_idx = tmpVertex->value - 1;
-            num_path = 1;
-          } else if (tmpVertex->max_weightPath == max_pathLength) {
-            num_path++;
-          }
+      // For each vertex w in Q, where (u, w) exists
+      Vertex *v = u->next;
+      while (v != NULL) {
+        if (set_Q[v->value - 1] != INF) {
+          relax(u, v, distance, predecessor, set_Q);
         }
-        tmpVertex = tmpVertex->next;
+        v = v->next;
       }
-      traverseCounter++;
-      // printf("%d, %d\n", num_path, max_pathLength);
-    }
-
-    // traverse the vertexarray to find and store the path with max_pathLength
-    int max_path[num_path][max_pathLength];
-    int n = 0;
-    for (int i = 0; i < numvertices; i++) {
-      if (n < num_path) {
-        tmpVertex = vertexarray[i]->next;
-        while (tmpVertex != NULL && n < num_path) {
-          if (tmpVertex->max_weightPath == max_pathLength) {
-            max_path[n][max_pathLength - 1] = tmpVertex->value;
-            Vertex *tmpPre = tmpVertex->predecossor;
-            for (int j = max_pathLength - 2; i >= 0; i--) {
-              max_path[n][j] = tmpPre->value;
-              tmpPre = tmpPre->predecossor;
-            }
-            n++;
-          }
-        }
-      }
-    }
-
-    printf("Maximum path length: %d\n", max_pathLength);
-    for (int i = 0; i < num_path; i++) {
-      for (int j = 0; j < max_pathLength; j++) {
-        if (j == max_pathLength - 1) {
-          printf("%d", max_path[i][j]);
-        } else {
-          printf("%d -> ", max_path[i][j]);
-        }
-      }
-      printf("\n");
     }
   }
   }
-};
+  printMaximumPath(distance, predecessor, numvertices);
+}
+
+void finalize(Vertex **vertexarray) {
+  for (int i = 0; i < MAX_VERTICES_NUM + 5; i++) {
+    Vertex *tmpVertex = vertexarray[i]->next;
+    while (tmpVertex != NULL) {
+      vertexarray[i]->next = tmpVertex->next;
+      free(tmpVertex);
+      tmpVertex = vertexarray[i]->next;
+    }
+    free(vertexarray[i]);
+  }
+}

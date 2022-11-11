@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct Vertex {
   int value;
@@ -10,14 +10,16 @@ typedef struct Vertex {
   struct Vertex *next;
 } Vertex;
 
-Vertex *initializeVertex(int value);
+Vertex *newVertex(int value);
 
 void initialize(Vertex **vertexarray);
 
 void buildGraph(Vertex **vertexarray, int numvertices);
 
-bool relax(Vertex* u, Vertex* v);
+bool relax(Vertex *u, Vertex *v, int *distance, int *predecessor, int *set_Q);
 
 void findPaths(Vertex **vertexarray, int numvertices, char bf);
 
 void finalize(Vertex **vertexarray);
+
+void printMaximumPath(int *distance, int *predecessor, int numvertices);
