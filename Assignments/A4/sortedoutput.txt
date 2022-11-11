@@ -1,0 +1,15 @@
+Airport Abbrev		Delay-All	Avg Delay-Late	#Arrivals	#Late Arrivals
+MIA					512.000		512.000				1			1
+ROC					241.000		241.000				1			1
+PHL					50.000		50.000				1			1
+ATL					30.000		90.000				6			2
+MSP					17.400		21.750				5			4
+LGA					3.000		6.000				2			1
+DTW					0.000		0.000				1			0
+PBI					0.000		0.000				2			0
+PIT					0.000		0.000				1			0
+RSW					0.000		0.000				2			0
+TPA					0.000		0.000				1			0
+
+
+
