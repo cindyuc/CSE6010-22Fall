@@ -69,8 +69,6 @@ int main(int argc, char *argv[]) {
 
       cal_heat(heat, N, 0.1);
       max_heat = max(heat, N);
-
-      printf("max_heat: %f\n", max_heat);
     }
     L = H_init / 2;
   }
@@ -86,8 +84,6 @@ int main(int argc, char *argv[]) {
     max_heat = max(heat, N);
 
     H = H_init;
-
-    printf("max_heat: %.1f\n", max_heat);
   }
 
   printf("the value of initial heat is %d\nthe maximum heat temperature is "
