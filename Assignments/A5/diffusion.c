@@ -1,3 +1,4 @@
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,9 +16,11 @@ float max(float arr[], int N) {
 
 void cal_heat(float heat[], int N, float scale) {
   // float *heat_new = malloc(N * sizeof(float));
+  static int num_steps = 2000;
 
-  for (int i = 0; i < 2000; i++) {
+  for (int i = 0; i < num_steps; i++) {
     float heat_new[N];
+#pragma omp parallel for
     for (int j = 0; j < N; j++) {
       if (j == 0) {
         heat_new[j] = heat[j] + scale * (2 * heat[j + 1] - 2 * heat[j]);
@@ -89,6 +92,8 @@ int main(int argc, char *argv[]) {
   printf("the value of initial heat is %d\nthe maximum heat temperature is "
          "%lf\n",
          H_init, max_heat);
+
+  free(heat);
 
   return 0;
 }
