@@ -15,7 +15,6 @@ float max(float arr[], int N) {
 }
 
 void cal_heat(float heat[], int N, float scale) {
-  // float *heat_new = malloc(N * sizeof(float));
   static int num_steps = 2000;
 
   for (int i = 0; i < num_steps; i++) {
